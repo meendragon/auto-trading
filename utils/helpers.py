@@ -1,12 +1,12 @@
 import yfinance as yf
 import pandas as pd
 import numpy as np
+from tqdm import tqdm
+
+# -----------------------------
+# 거래소 코드 매핑
+# -----------------------------
 def map_exchange_code(short_code: str) -> str:
-    """
-    해외주식 거래소 코드 매핑 (조회용 약어 → 주문용 코드)
-    - 조회 시: NYS / NAS / AMS ...
-    - 주문 시: NYSE / NASD / AMEX ...
-    """
     mapping = {
         "NYS": "NYSE",
         "NAS": "NASD",
@@ -16,75 +16,108 @@ def map_exchange_code(short_code: str) -> str:
         "NCM": "NCM",
     }
     return mapping.get(short_code.upper(), short_code.upper())
-# ✅ 기술적 지표 계산 (볼린저밴드 + 이동평균선)
 
+# -----------------------------
+# 기술적 지표 계산 (MA, Bollinger)
+# -----------------------------
 def add_indicators(df, window=20):
     df["ma20"] = df["close"].rolling(window=window).mean()
     df["stddev"] = df["close"].rolling(window=window).std()
     df["upper"] = df["ma20"] + (df["stddev"] * 2)
     df["lower"] = df["ma20"] - (df["stddev"] * 2)
     df["ma5"] = df["close"].rolling(window=5).mean()
-    df["ma60"] = df["close"].rolling(window=60).mean()
-    df["ma448"] = df["close"].rolling(window=448).mean()  # ✅ 추가
+
+    df = df.dropna().reset_index(drop=True)
     return df
 
-# ✅ 5분봉 데이터 가져오기
-def fetch_5min_data(ticker):
-    data = yf.download(ticker, interval="5m", period="1d", progress=False, auto_adjust=False)
+# -----------------------------
+# 데이터 가져오기 (3분, 5분, 일봉 선택 가능)
+# -----------------------------
+def fetch_data(ticker, interval="5m", period="5d"):
+    """
+    interval: "3m", "5m", "1d"
+    period:  "5d", "1mo", "3mo" 등
+    """
+    data = yf.download(ticker, interval=interval, period=period,
+                       progress=False, auto_adjust=False)
     data = data.rename(columns={"Close": "close", "High": "high", "Low": "low"})
+    data = add_indicators(data)
     return data
 
+# -----------------------------
+# 매수 조건
+# -----------------------------
 def check_buy_condition(df, current_price, mode="lower_recover", **kwargs):
     """
     mode:
-      - "lower_recover" : 하단선 이탈 후 회복
-      - "ma_cross"      : 단기 MA가 장기 MA 상향돌파
-      - "near_ma"       : 가격이 이동평균선 근처일 때
-      - "combo"         : 여러 조건 조합 (예시)
+      - "lower_recover" : 볼린저 하단선 이탈 후 회복
+      - "ma_cross"      : 단기 MA가 중기 MA 상향 돌파
+      - "near_ma"       : 현재가가 특정 이동평균선 근처
+      - "ma5_touch"     : 상승 추세 중 MA5 근접 후 반등
+      - "combo"         : 복합 조건
     """
-    latest = df.iloc[[-1]]
-    prev = df.iloc[[-2]]
+    # 데이터 최소 2행 이상 확보
+    if len(df) < 2:
+        return False
 
-    close_prev = float(prev["close"].iloc[0])
-    ma20_prev = float(prev["ma20"].iloc[0])
-    ma448_prev = float(prev["ma448"].iloc[0])
-    ma20_now = float(latest["ma20"].iloc[0])
-    ma448_now = float(latest["ma448"].iloc[0])
-    lower_prev = float(prev["lower"].iloc[0])
-    lower_now = float(latest["lower"].iloc[0])
+    latest = df.iloc[-1]
+    prev = df.iloc[-2]
 
-    # --- 조건 계산 ---
+    close_prev = prev["close"].item()
+    ma5_prev = prev["ma5"].item()
+    ma20_prev = prev["ma20"].item()
+    lower_prev = prev["lower"].item()
+
+    close_now = latest["close"].item()
+    ma5_now = latest["ma5"].item()
+    ma20_now = latest["ma20"].item()
+    lower_now = latest["lower"].item()
+
+    # --- 주요 조건 계산 ---
+
+    # (1) 볼린저 하단 이탈 후 회복
     lower_recover = (close_prev < lower_prev) and (current_price > lower_now)
-    near_ma20 = abs((current_price - ma20_now) / ma20_now) <= 0.0003
-    near_ma448 = abs((current_price - ma448_now) / ma448_now) <= 0.003
-    ma_cross = (ma20_prev < ma448_prev) and (ma20_now > ma448_now)
 
-    # --- case 분기 ---
+    # (2) 단기 이평이 중기 이평을 상향 돌파
+    ma_cross = (ma5_prev < ma20_prev) and (ma5_now > ma20_now)
+
+    # (3) 현재가가 이동평균선 근처 (기본 tolerace=0.001)
+    target_ma = kwargs.get("target_ma", "ma20")
+    tolerance = kwargs.get("tolerance", 0.001)
+    ma_val = ma5_now if target_ma == "ma5" else ma20_now
+    near_ma = abs((current_price - ma_val) / ma_val) <= tolerance
+
+    # (4) 상승추세 중 MA5 근접 반등
+    ma5_touch = (
+        (ma5_now > ma20_now) and                 # 상승 추세
+        abs((current_price - ma5_now) / ma5_now) <= 0.001 and  # MA5 근접
+        (current_price > close_prev)             # 직전 종가 대비 반등
+    )
+
+    # --- 모드별 분기 ---
     if mode == "lower_recover":
         return lower_recover
-
     elif mode == "ma_cross":
         return ma_cross
-
     elif mode == "near_ma":
-        target_ma = kwargs.get("target_ma", "ma20")
-        tolerance = kwargs.get("tolerance", 0.001)
-        ma_val = ma20_now if target_ma == "ma20" else ma448_now
-        return abs((current_price - ma_val) / ma_val) <= tolerance
-
+        return near_ma
+    elif mode == "ma5_touch":
+        return ma5_touch
     elif mode == "combo":
-        # 복합 조건 예시: 하단선 회복 + 단기이평 근접
+        # 복합 전략 예시: 하단 회복 + 단기이평 반등
         strict = kwargs.get("strict", False)
         if strict:
-            return lower_recover and near_ma20 and ma_cross
+            return lower_recover and ma_cross and ma5_touch
         else:
-            return (lower_recover and near_ma20) or ma_cross
-
+            return (lower_recover and ma5_touch) or ma_cross
     else:
         raise ValueError(f"Unknown mode: {mode}")
 
-# ✅ 매도 조건 (익절·손절 퍼센트 조정 가능)
-def check_sell_condition(entry_price, current_price, take_profit_pct=1.0, stop_loss_pct=-3.0):
+# -----------------------------
+# 매도 조건 (익절/손절)
+# -----------------------------
+def check_sell_condition(entry_price, current_price,
+                         take_profit_pct=1.0, stop_loss_pct=-3.0):
     profit_rate = (current_price - entry_price) / entry_price * 100
     if profit_rate >= take_profit_pct:
         return "take_profit"
@@ -92,43 +125,75 @@ def check_sell_condition(entry_price, current_price, take_profit_pct=1.0, stop_l
         return "stop_loss"
     return None
 
-# ✅ 백테스트 기반 익절·손절 최적화
-def optimize_sell_thresholds(ticker, take_profit_range=(0.5, 2.0, 0.5), stop_loss_range=(-5.0, -1.0, 1.0)):
-    df = yf.download(ticker, interval="15m", period="5d", progress=False, auto_adjust=False)
-    df = df.rename(columns={"Close": "close"})
+# -----------------------------
+# 브루트포스 최적화
+# -----------------------------
+def optimize_thresholds_bruteforce(ticker,
+                                   interval="5m",
+                                   period="5d",
+                                   take_profit_range=(0.5, 2.0, 0.5),
+                                   stop_loss_range=(-5.0, -1.0, 1.0),
+                                   modes=("lower_recover", "ma_cross", "ma5_touch", "combo")):
+    df = fetch_data(ticker, interval=interval, period=period)
     results = []
 
     take_profit_values = np.arange(*take_profit_range)
     stop_loss_values = np.arange(*stop_loss_range)
 
-    for tp in take_profit_values:
-        for sl in stop_loss_values:
-            balance = 10000
-            position = None
-            entry_price = 0.0
+    for mode in tqdm(modes, desc="Mode Loop"):
+        for tp in take_profit_values:
+            for sl in stop_loss_values:
+                balance = 10000
+                position = None
+                entry_price = 0.0
+                wins = 0
+                losses = 0
 
-            for i in range(1, len(df)):
-                price = float(df["close"].iloc[i].item())
-                prev_price = float(df["close"].iloc[i - 1].item())
+                for i in range(2, len(df)):
+                    row = df.iloc[i]
+                    high = row["high"].item()
+                    low = row["low"].item()
+                    close = row["close"].item()
+                    sub_df = df.iloc[:i + 1]
 
-                # 단순 매수 조건: 직전보다 상승 시작 시 진입
-                if position is None and price > prev_price:
-                    position = True
-                    entry_price = price
-                elif position:
-                    result = check_sell_condition(entry_price, price, take_profit_pct=tp, stop_loss_pct=sl)
-                    if result == "take_profit":
-                        balance *= (1 + tp / 100)
-                        position = None
-                    elif result == "stop_loss":
-                        balance *= (1 + sl / 100)
-                        position = None
+                    if len(sub_df) < 2:
+                        continue
 
-            results.append((tp, sl, balance))
+                    # 매수
+                    if position is None:
+                        if check_buy_condition(sub_df, close, mode=mode):
+                            entry_price = low  # ✅ 다음 캔들에서 저가 기준으로 진입했다고 가정
+                            position = True
 
-    best = max(results, key=lambda x: x[2])
-    print(f"💹 최적 익절 {best[0]}% / 손절 {best[1]}% → 최종 자본 {best[2]:.2f}")
-    return best[0], best[1]
+                    # 매도
+                    else:
+                        target_profit_price = entry_price * (1 + tp / 100)
+                        target_loss_price = entry_price * (1 + sl / 100)
+
+                        # ✅ 고가가 익절가 도달했으면 익절
+                        if high >= target_profit_price:
+                            balance *= (1 + tp / 100)
+                            wins += 1
+                            position = None
+
+                        # ✅ 저가가 손절가 도달했으면 손절
+                        elif low <= target_loss_price:
+                            balance *= (1 + sl / 100)
+                            losses += 1
+                            position = None
+
+                total_trades = wins + losses
+                win_rate = (wins / total_trades * 100) if total_trades > 0 else 0.0
+
+                results.append((interval, mode, tp, sl, balance, win_rate, total_trades))
+
+    # 최종 결과
+    best = max(results, key=lambda x: x[4])
+    print(
+        f"\n🏆 [{best[0]}] 최적 모드: {best[1]} | 익절 {best[2]}% / 손절 {best[3]}%"
+        f" → 최종 자본 ${best[4]:.2f} | 승률 {best[5]:.1f}% ({best[6]}회 거래)"
+    )
+    return best
 
 # ✅ 안전한 float 변환
 def safe_float(val):
