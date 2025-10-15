@@ -1,0 +1,55 @@
+순번,API 통신방식,메뉴 위치,API 명,API ID,실전 TR_ID,모의 TR_ID,HTTP Method,URL 명,실전 Domain,모의 Domain
+1,REST,OAuth인증,Hashkey,Hashkey,,,POST,/uapi/hashkey,https://openapi.koreainvestment.com:9443,https://openapivts.koreainvestment.com:29443
+2,WEBSOCKET,OAuth인증,실시간 (웹소켓) 접속키 발급,실시간-000,,,POST,/oauth2/Approval,https://openapi.koreainvestment.com:9443,https://openapivts.koreainvestment.com:29443
+3,REST,OAuth인증,접근토큰폐기(P),인증-002,,,POST,/oauth2/revokeP,https://openapi.koreainvestment.com:9443,https://openapivts.koreainvestment.com:29443
+4,REST,OAuth인증,접근토큰발급(P),인증-001,,,POST,/oauth2/tokenP,https://openapi.koreainvestment.com:9443,https://openapivts.koreainvestment.com:29443
+233,REST,[해외주식] 주문/계좌,해외주식 잔고,v1_해외주식-006,TTTS3012R,VTTS3012R,GET,/uapi/overseas-stock/v1/trading/inquire-balance,https://openapi.koreainvestment.com:9443,https://openapivts.koreainvestment.com:29443
+234,REST,[해외주식] 주문/계좌,해외주식 체결기준현재잔고,v1_해외주식-008,CTRP6504R,VTRP6504R,GET,/uapi/overseas-stock/v1/trading/inquire-present-balance,https://openapi.koreainvestment.com:9443,https://openapivts.koreainvestment.com:29443    (output3만 이용 가능)
+235,REST,[해외주식] 주문/계좌,해외주식 지정가체결내역조회,해외주식-070,TTTS6059R,모의투자 미지원,GET,/uapi/overseas-stock/v1/trading/inquire-algo-ccnl,https://openapi.koreainvestment.com:9443,미지원
+236,REST,[해외주식] 주문/계좌,해외주식 기간손익,v1_해외주식-032,TTTS3039R,모의투자 미지원,GET,/uapi/overseas-stock/v1/trading/inquire-period-profit,https://openapi.koreainvestment.com:9443,모의투자 미지원
+237,REST,[해외주식] 주문/계좌,해외주식 매수가능금액조회,v1_해외주식-014,TTTS3007R,VTTS3007R,GET,/uapi/overseas-stock/v1/trading/inquire-psamount,https://openapi.koreainvestment.com:9443,https://openapivts.koreainvestment.com:29443
+238,REST,[해외주식] 주문/계좌,해외주식 정정취소주문,v1_해외주식-003,(미국 정정·취소) TTTT1004U (아시아 국가 하단 규격서 참고),(미국 정정·취소) VTTT1004U (아시아 국가 하단 규격서 참고),POST,/uapi/overseas-stock/v1/trading/order-rvsecncl,https://openapi.koreainvestment.com:9443,https://openapivts.koreainvestment.com:29443
+239,REST,[해외주식] 주문/계좌,해외주식 예약주문접수,v1_해외주식-002,(미국예약매수) TTTT3014U  (미국예약매도) TTTT3016U   (중국/홍콩/일본/베트남 예약주문) TTTS3013U,(미국예약매수) VTTT3014U  (미국예약매도) VTTT3016U   (중국/홍콩/일본/베트남 예약주문) VTTS3013U,POST,/uapi/overseas-stock/v1/trading/order-resv,https://openapi.koreainvestment.com:9443,https://openapivts.koreainvestment.com:29443
+240,REST,[해외주식] 주문/계좌,해외주식 미체결내역,v1_해외주식-005,TTTS3018R,모의투자 미지원,GET,/uapi/overseas-stock/v1/trading/inquire-nccs,https://openapi.koreainvestment.com:9443,미지원
+241,REST,[해외주식] 주문/계좌,해외주식 미국주간정정취소,v1_해외주식-027,TTTS6038U,모의투자 미지원,POST,/uapi/overseas-stock/v1/trading/daytime-order-rvsecncl,https://openapi.koreainvestment.com:9443,모의투자 미지원
+242,REST,[해외주식] 주문/계좌,해외주식 주문체결내역,v1_해외주식-007,TTTS3035R,VTTS3035R,GET,/uapi/overseas-stock/v1/trading/inquire-ccnl,https://openapi.koreainvestment.com:9443,https://openapivts.koreainvestment.com:29443
+243,REST,[해외주식] 주문/계좌,해외주식 결제기준잔고,해외주식-064,CTRP6010R,모의투자 미지원,GET,/uapi/overseas-stock/v1/trading/inquire-paymt-stdr-balance,https://openapi.koreainvestment.com:9443,모의투자 미지원
+244,REST,[해외주식] 주문/계좌,해외주식 일별거래내역,해외주식-063,CTOS4001R,모의투자 미지원,GET,/uapi/overseas-stock/v1/trading/inquire-period-trans,https://openapi.koreainvestment.com:9443,모의투자 미지원
+245,REST,[해외주식] 주문/계좌,해외주식 미국주간주문,v1_해외주식-026,(주간매수) TTTS6036U (주간매도) TTTS6037U,모의투자 미지원,POST,/uapi/overseas-stock/v1/trading/daytime-order,https://openapi.koreainvestment.com:9443,모의투자 미지원
+246,REST,[해외주식] 주문/계좌,해외주식 예약주문조회,v1_해외주식-013,(미국) TTTT3039R (일본/중국/홍콩/베트남) TTTS3014R,모의투자 미지원,GET,/uapi/overseas-stock/v1/trading/order-resv-list,https://openapi.koreainvestment.com:9443,모의투자 미지원
+247,REST,[해외주식] 주문/계좌,해외주식 주문,v1_해외주식-001,(미국매수) TTTT1002U  (미국매도) TTTT1006U (아시아 국가 하단 규격서 참고),(미국매수) VTTT1002U  (미국매도) VTTT1001U  (아시아 국가 하단 규격서 참고),POST,/uapi/overseas-stock/v1/trading/order,https://openapi.koreainvestment.com:9443,https://openapivts.koreainvestment.com:29443
+248,REST,[해외주식] 주문/계좌,해외주식 예약주문접수취소,v1_해외주식-004,(미국 예약주문 취소접수) TTTT3017U (아시아국가 미제공),(미국 예약주문 취소접수) VTTT3017U (아시아국가 미제공),POST,/uapi/overseas-stock/v1/trading/order-resv-ccnl,https://openapi.koreainvestment.com:9443,https://openapivts.koreainvestment.com:29443
+249,REST,[해외주식] 주문/계좌,해외주식 지정가주문번호조회,해외주식-071,TTTS6058R,모의투자 미지원,GET,/uapi/overseas-stock/v1/trading/algo-ordno,https://openapi.koreainvestment.com:9443,미지원
+250,REST,[해외주식] 주문/계좌,해외증거금 통화별조회,해외주식-035,TTTC2101R,모의투자 미지원,GET,/uapi/overseas-stock/v1/trading/foreign-margin,https://openapi.koreainvestment.com:9443,모의투자 미지원
+251,REST,[해외주식] 기본시세,해외주식 체결추이,해외주식-037,HHDFS76200300,모의투자 미지원,GET,/uapi/overseas-price/v1/quotations/inquire-ccnl,https://openapi.koreainvestment.com:9443,모의투자 미지원
+252,REST,[해외주식] 기본시세,해외주식 기간별시세,v1_해외주식-010,HHDFS76240000,HHDFS76240000,GET,/uapi/overseas-price/v1/quotations/dailyprice,https://openapi.koreainvestment.com:9443,https://openapivts.koreainvestment.com:29443
+253,REST,[해외주식] 기본시세,해외결제일자조회,해외주식-017,CTOS5011R,모의투자 미지원,GET,/uapi/overseas-stock/v1/quotations/countries-holiday,https://openapi.koreainvestment.com:9443,모의투자 미지원
+254,REST,[해외주식] 기본시세,해외주식 현재체결가,v1_해외주식-009,HHDFS00000300,HHDFS00000300,GET,/uapi/overseas-price/v1/quotations/price,https://openapi.koreainvestment.com:9443,https://openapivts.koreainvestment.com:29443
+255,REST,[해외주식] 기본시세,해외주식조건검색,v1_해외주식-015,HHDFS76410000,HHDFS76410000,GET,/uapi/overseas-price/v1/quotations/inquire-search,https://openapi.koreainvestment.com:9443,https://openapivts.koreainvestment.com:29443
+256,REST,[해외주식] 기본시세,해외주식 상품기본정보,v1_해외주식-034,CTPF1702R,모의투자 미지원,GET,/uapi/overseas-price/v1/quotations/search-info,https://openapi.koreainvestment.com:9443,모의투자 미지원
+257,REST,[해외주식] 기본시세,해외지수분봉조회,v1_해외주식-031,FHKST03030200,모의투자 미지원,GET,/uapi/overseas-price/v1/quotations/inquire-time-indexchartprice,https://openapi.koreainvestment.com:9443,모의투자 미지원
+258,REST,[해외주식] 기본시세,해외주식분봉조회,v1_해외주식-030,HHDFS76950200,모의투자 미지원,GET,/uapi/overseas-price/v1/quotations/inquire-time-itemchartprice,https://openapi.koreainvestment.com:9443,모의투자 미지원
+259,REST,[해외주식] 기본시세,해외주식 현재가상세,v1_해외주식-029,HHDFS76200200,모의투자 미지원,GET,/uapi/overseas-price/v1/quotations/price-detail,https://openapi.koreainvestment.com:9443,모의투자 미지원
+260,REST,[해외주식] 기본시세,해외주식 업종별코드조회,해외주식-049,HHDFS76370100,모의투자 미지원,GET,/uapi/overseas-price/v1/quotations/industry-price,https://openapi.koreainvestment.com:9443,모의투자 미지원
+261,REST,[해외주식] 기본시세,해외주식 종목/지수/환율기간별시세(일/주/월/년),v1_해외주식-012,FHKST03030100,FHKST03030100,GET,/uapi/overseas-price/v1/quotations/inquire-daily-chartprice,https://openapi.koreainvestment.com:9443,https://openapivts.koreainvestment.com:29443
+262,REST,[해외주식] 기본시세,해외주식 업종별시세,해외주식-048,HHDFS76370000,모의투자 미지원,GET,/uapi/overseas-price/v1/quotations/industry-theme,https://openapi.koreainvestment.com:9443,모의투자 미지원
+263,REST,[해외주식] 기본시세,해외주식 현재가 1호가,해외주식-033,HHDFS76200100,모의투자 미지원,GET,/uapi/overseas-price/v1/quotations/inquire-asking-price,https://openapi.koreainvestment.com:9443,모의투자 미지원
+264,REST,[해외주식] 시세분석,해외주식 거래증가율순위,해외주식-045,HHDFS76330000,모의투자 미지원,GET,/uapi/overseas-stock/v1/ranking/trade-growth,https://openapi.koreainvestment.com:9443,미지원
+265,REST,[해외주식] 시세분석,해외주식 기간별권리조회,해외주식-052,CTRGT011R,모의투자 미지원,GET,/uapi/overseas-price/v1/quotations/period-rights,https://openapi.koreainvestment.com:9443,모의투자 미지원
+266,REST,[해외주식] 시세분석,해외주식 가격급등락,해외주식-038,HHDFS76260000,모의투자 미지원,GET,/uapi/overseas-stock/v1/ranking/price-fluct,https://openapi.koreainvestment.com:9443,미지원
+267,REST,[해외주식] 시세분석,해외주식 거래대금순위,해외주식-044,HHDFS76320010,모의투자 미지원,GET,/uapi/overseas-stock/v1/ranking/trade-pbmn,https://openapi.koreainvestment.com:9443,미지원
+268,REST,[해외주식] 시세분석,해외주식 거래량급증,해외주식-039,HHDFS76270000,모의투자 미지원,GET,/uapi/overseas-stock/v1/ranking/volume-surge,https://openapi.koreainvestment.com:9443,미지원
+269,REST,[해외주식] 시세분석,해외주식 신고/신저가,해외주식-042,HHDFS76300000,모의투자 미지원,GET,/uapi/overseas-stock/v1/ranking/new-highlow,https://openapi.koreainvestment.com:9443,미지원
+270,REST,[해외주식] 시세분석,해외주식 매수체결강도상위,해외주식-040,HHDFS76280000,모의투자 미지원,GET,/uapi/overseas-stock/v1/ranking/volume-power,https://openapi.koreainvestment.com:9443,미지원
+271,REST,[해외주식] 시세분석,해외주식 거래회전율순위,해외주식-046,HHDFS76340000,모의투자 미지원,GET,/uapi/overseas-stock/v1/ranking/trade-turnover,https://openapi.koreainvestment.com:9443,미지원
+272,REST,[해외주식] 시세분석,해외뉴스종합(제목),해외주식-053,HHPSTH60100C1,모의투자 미지원,GET,/uapi/overseas-price/v1/quotations/news-title,https://openapi.koreainvestment.com:9443,미지원
+273,REST,[해외주식] 시세분석,당사 해외주식담보대출 가능 종목,해외주식-051,CTLN4050R,모의투자 미지원,GET,/uapi/overseas-price/v1/quotations/colable-by-company,https://openapi.koreainvestment.com:9443,미지원
+274,REST,[해외주식] 시세분석,해외주식 시가총액순위,해외주식-047,HHDFS76350100,모의투자 미지원,GET,/uapi/overseas-stock/v1/ranking/market-cap,https://openapi.koreainvestment.com:9443,미지원
+275,REST,[해외주식] 시세분석,해외속보(제목),해외주식-055,FHKST01011801,모의투자 미지원,GET,/uapi/overseas-price/v1/quotations/brknews-title,https://openapi.koreainvestment.com:9443,미지원
+276,REST,[해외주식] 시세분석,해외주식 상승율/하락율,해외주식-041,HHDFS76290000,모의투자 미지원,GET,/uapi/overseas-stock/v1/ranking/updown-rate,https://openapi.koreainvestment.com:9443,미지원
+277,REST,[해외주식] 시세분석,해외주식 권리종합,해외주식-050,HHDFS78330900,모의투자 미지원,GET,/uapi/overseas-price/v1/quotations/rights-by-ice,https://openapi.koreainvestment.com:9443,미지원
+278,REST,[해외주식] 시세분석,해외주식 거래량순위,해외주식-043,HHDFS76310010,모의투자 미지원,GET,/uapi/overseas-stock/v1/ranking/trade-vol,https://openapi.koreainvestment.com:9443,미지원
+279,WEBSOCKET,[해외주식] 실시간시세,해외주식 실시간호가,실시간-021,HDFSASP0,모의투자 미지원,POST,/tryitout/HDFSASP0,ws://ops.koreainvestment.com:21000,모의투자 미지원
+280,WEBSOCKET,[해외주식] 실시간시세,해외주식 지연호가(아시아),실시간-008,HDFSASP1,모의투자 미지원,POST,/tryitout/HDFSASP1,ws://ops.koreainvestment.com:21000,제공 안함
+281,WEBSOCKET,[해외주식] 실시간시세,해외주식 실시간지연체결가,실시간-007,HDFSCNT0,모의투자 미지원,POST,/tryitout/HDFSCNT0,ws://ops.koreainvestment.com:21000,모의투자 미지원
+282,WEBSOCKET,[해외주식] 실시간시세,해외주식 실시간체결통보,실시간-009,H0GSCNI0,H0GSCNI9,POST,/tryitout/H0GSCNI0,ws://ops.koreainvestment.com:21000,ws://ops.koreainvestment.com:31000
