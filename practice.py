@@ -1,21 +1,18 @@
-import time
-from utils.api import (
-    fetch_access_token,
-    fetch_cash_amount,
-    get_current_price,
-    send_discord_message
-)
-from utils.order_api import (
-    buy_order,
-    sell_order
-)
-from utils.helpers import (
-    fetch_5min_data,
-    add_indicators,
-    check_buy_condition,
-    check_sell_condition,
-    optimize_sell_thresholds,
-    map_exchange_code
-)
+# practice.py
+import yaml
+from utils.api import fetch_access_token, send_discord_message
 
+# -------------------------------------------------------
+# ✅ 설정 로드
+# -------------------------------------------------------
+with open("config.yaml", encoding="utf-8") as f:
+    config = yaml.load(f, Loader=yaml.FullLoader)
+
+# -------------------------------------------------------
+# ✅ 메인 루틴 (연결 시작)
+# -------------------------------------------------------
 if __name__ == "__main__":
+    send_discord_message("🚀 Practice 모드 시작 — 서버 연결 테스트 중...")
+    access_token = fetch_access_token(force_refresh=True)
+    send_discord_message("✅ API 연결 테스트 완료 (Access Token 정상 발급)")
+    print("✅ 연결 테스트 완료")

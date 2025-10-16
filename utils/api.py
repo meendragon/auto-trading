@@ -3,8 +3,15 @@ import json
 import datetime
 import time
 import yaml
-from utils.helpers import safe_float  # ✅ safe_float 불러오기
-
+from utils.helpers import (
+    fetch_data,
+    add_indicators,
+    check_buy_condition,
+    check_sell_condition,
+    optimize_thresholds_bruteforce,
+    map_exchange_code,
+    safe_float
+)
 with open('config.yaml', encoding='UTF-8') as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
 
@@ -161,6 +168,7 @@ def get_current_price(symbol: str, exchange: str = "NAS") -> float:
                 "AUTH": "",
                 "EXCD": exchange,
                 "SYMB": symbol
+
             }
         )
         data = resp.json()
@@ -171,3 +179,47 @@ def get_current_price(symbol: str, exchange: str = "NAS") -> float:
     except Exception as e:
         print(f"[가격 조회 오류] {symbol} ({exchange}) → {e}")
         return 0.0
+
+# 📑 체결 내역 조회
+# ==========================================================
+def check_order_status(order_no: str, symbol: str, exchange: str = "NYS") -> dict:
+    exchange = map_exchange_code(exchange)
+    """
+    ✅ 특정 주문번호의 체결 여부 조회
+    """
+    url = f"{url_base}/uapi/overseas-stock/v1/trading/inquire-ccnl"
+    headers = {
+        "content-type": "application/json; charset=utf-8",
+        "authorization": f"Bearer {access_token}",
+        "appkey": app_key,
+        "appsecret": app_secret,
+        "tr_id": "VTTS3035R",
+    }
+    params = {
+        "CANO": cano,
+        "ACNT_PRDT_CD": account_product_code,
+        "PDNO": symbol,
+        "ORD_STRT_DT": (datetime.datetime.now() - datetime.timedelta(days=3)).strftime("%Y%m%d"),
+        "ORD_END_DT": datetime.datetime.now().strftime("%Y%m%d"),
+        "SLL_BUY_DVSN": "00",
+        "CCLD_NCCS_DVSN": "00",
+        "OVRS_EXCG_CD": exchange,
+        "SORT_SQN": "AS",
+        "ORD_DT": "", "ORD_GNO_BRNO": "", "ODNO": "",
+        "CTX_AREA_NK200": "", "CTX_AREA_FK200": ""
+    }
+    resp = requests.get(url, headers=headers, params=params)
+    data = resp.json()
+    orders = data.get("output", [])
+
+    for o in orders:
+        if o.get("odno") == order_no:
+            send_discord_message(
+                f"📋 주문번호 {order_no} 상태\n"
+                f"체결수량: {o.get('ft_ccld_qty')} / 미체결수량: {o.get('nccs_qty')}\n"
+                f"상태: {o.get('prcs_stat_name')} / 단가: {o.get('ft_ccld_unpr3')}"
+            )
+            return o
+
+    send_discord_message(f"[❗주문번호 {order_no}] 체결 내역을 찾지 못했습니다.")
+    return {}
